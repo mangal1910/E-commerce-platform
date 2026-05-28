@@ -11,6 +11,7 @@ const userRoutes = require("./routes/user.routes");
 const sellerRoutes = require("./routes/seller.routes");
 const adminRoutes = require("./routes/admin.routes");
 const deliveryRoutes = require("./routes/delivery.routes");
+const recommendationRoutes = require("./routes/recommendation.routes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,6 +31,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/seller", sellerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/delivery", deliveryRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
