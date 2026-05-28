@@ -1,10 +1,11 @@
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: "/api",
-});
+// Check if we have VITE_API_URL set in env, otherwise fallback to '/api' for local Vite proxy
+const baseURL = import.meta.env.VITE_API_URL || "/api";
 
-// const API_BASE = process.env.REACT_APP_BACKEND_URL || 'https://your-render-app.onrender.com';
+const api = axios.create({
+  baseURL,
+});
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("velos_token");
