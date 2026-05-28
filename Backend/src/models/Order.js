@@ -96,6 +96,7 @@ const orderSchema = new mongoose.Schema(
     deliveryClosed: { type: Boolean, default: false },
     deliveryClosedAt: { type: Date, default: null },
     orderedAt: { type: Date, default: Date.now, index: true },
+    deliveryOTP: { type: String, default: null },
   },
   { timestamps: true }
 );

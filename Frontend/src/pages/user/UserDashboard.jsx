@@ -4,6 +4,7 @@ import DashboardLayout from "../../components/DashboardLayout";
 import ProductCard from "../../components/ProductCard";
 import api from "../../services/api";
 import { useToast } from "../../context/ToastContext";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/user/dashboard", label: "Profile" },
@@ -25,22 +26,28 @@ const UserDashboard = () => {
     mobileNo: "",
     address: "",
   });
+  const [loading, setLoading] = useState(true);
 
   const loadProducts = () =>
     api.get("/products").then((res) => setProducts(res.data.products || []));
 
   useEffect(() => {
-    api.get("/user/profile").then((res) => {
-      setProfile(res.data);
-      setImagePreview(res.data.imageUrl);
-      setForm({
-        name: res.data.name || "",
-        email: res.data.email || "",
-        mobileNo: res.data.mobileNo || "",
-        address: res.data.address || "",
-      });
-    });
-    loadProducts();
+    Promise.all([
+      api.get("/user/profile").then((res) => {
+        setProfile(res.data);
+        setImagePreview(res.data.imageUrl);
+        setForm({
+          name: res.data.name || "",
+          email: res.data.email || "",
+          mobileNo: res.data.mobileNo || "",
+          address: res.data.address || "",
+        });
+      }),
+      loadProducts()
+    ])
+      .catch((err) => console.error("Error loading dashboard details:", err))
+      .finally(() => setLoading(false));
+
     const interval = setInterval(loadProducts, 15000);
     return () => clearInterval(interval);
   }, []);
@@ -101,6 +108,19 @@ const UserDashboard = () => {
       );
     }
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center py-24">
+          <Loader size="xl" color="blue" />
+          <p className="mt-4 text-sm font-semibold text-slate-500 animate-pulse">
+            Loading your dashboard details...
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>

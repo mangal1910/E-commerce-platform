@@ -84,7 +84,12 @@ const ProductDetail = () => {
   if (!product) {
     return (
       <DashboardLayout navItems={nav}>
-        <p className="text-slate-500">Loading...</p>
+        <div className="flex flex-col items-center justify-center py-24">
+          <Loader size="xl" color="blue" />
+          <p className="mt-4 text-sm font-semibold text-slate-500 animate-pulse">
+            Loading product details...
+          </p>
+        </div>
       </DashboardLayout>
     );
   }

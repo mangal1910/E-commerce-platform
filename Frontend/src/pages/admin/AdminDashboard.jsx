@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
 import api from "../../services/api";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/admin/dashboard", label: "Overview" },
@@ -10,10 +11,24 @@ const nav = [
 
 const AdminDashboard = () => {
   const [revenue, setRevenue] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/admin/revenue").then((res) => setRevenue(res.data));
+    api.get("/admin/revenue")
+      .then((res) => setRevenue(res.data))
+      .finally(() => setLoading(false));
   }, []);
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+          <Loader size="lg" color="blue" />
+          <p className="text-gray-500 animate-pulse font-medium">Loading overview...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>

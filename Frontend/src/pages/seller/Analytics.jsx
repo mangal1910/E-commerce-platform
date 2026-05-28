@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
 import api from "../../services/api";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/seller/dashboard", label: "Profile" },
@@ -12,10 +13,24 @@ const nav = [
 
 const Analytics = () => {
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/seller/analytics").then((res) => setData(res.data));
+    api.get("/seller/analytics")
+      .then((res) => setData(res.data))
+      .finally(() => setLoading(false));
   }, []);
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+          <Loader size="lg" color="blue" />
+          <p className="text-gray-500 animate-pulse font-medium">Loading analytics...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>

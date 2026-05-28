@@ -151,6 +151,8 @@ const placeOrder = asyncHandler(async (req, res) => {
   const totalAmount = items.reduce((sum, item) => sum + item.subtotal, 0);
   const platformCommission = totalAmount * PLATFORM_COMMISSION_RATE;
 
+  const deliveryOTP = Math.floor(100000 + Math.random() * 900000).toString();
+
   const order = await Order.create({
     user: user._id,
     items,
@@ -159,6 +161,7 @@ const placeOrder = asyncHandler(async (req, res) => {
     platformCommission,
     orderedAt: new Date(),
     orderStatus: "Placed",
+    deliveryOTP,
     shippingUpdates: [
       {
         status: "Order Placed",

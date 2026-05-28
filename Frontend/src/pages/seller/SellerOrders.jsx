@@ -3,6 +3,7 @@ import DashboardLayout from "../../components/DashboardLayout";
 import OrderStatusTimeline from "../../components/OrderStatusTimeline";
 import api from "../../services/api";
 import { useToast } from "../../context/ToastContext";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/seller/dashboard", label: "Profile" },
@@ -17,6 +18,7 @@ const SellerOrders = () => {
   const [orders, setOrders] = useState([]);
   const [partners, setPartners] = useState([]);
   const [assignMap, setAssignMap] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
     const [ordersRes, partnersRes] = await Promise.all([
@@ -28,7 +30,7 @@ const SellerOrders = () => {
   };
 
   useEffect(() => {
-    load();
+    load().finally(() => setLoading(false));
   }, []);
 
   const assignDelivery = async (orderId) => {
@@ -61,6 +63,17 @@ const SellerOrders = () => {
       showToast(err.response?.data?.message || "Failed", "error");
     }
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+          <Loader size="lg" color="blue" />
+          <p className="text-gray-500 animate-pulse font-medium">Loading orders...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>

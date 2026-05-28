@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
 import api from "../../services/api";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/seller/dashboard", label: "Profile" },
@@ -12,6 +13,7 @@ const nav = [
 
 const SellerDashboard = () => {
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -20,15 +22,17 @@ const SellerDashboard = () => {
   });
 
   useEffect(() => {
-    api.get("/seller/profile").then((res) => {
-      setProfile(res.data);
-      setForm({
-        name: res.data.name || "",
-        email: res.data.email || "",
-        mobileNo: res.data.mobileNo || "",
-        shopAddress: res.data.shopAddress || "",
-      });
-    });
+    api.get("/seller/profile")
+      .then((res) => {
+        setProfile(res.data);
+        setForm({
+          name: res.data.name || "",
+          email: res.data.email || "",
+          mobileNo: res.data.mobileNo || "",
+          shopAddress: res.data.shopAddress || "",
+        });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const save = async (e) => {
@@ -37,6 +41,17 @@ const SellerDashboard = () => {
     setProfile(data);
     alert("Profile updated");
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+          <Loader size="lg" color="blue" />
+          <p className="text-gray-500 animate-pulse font-medium">Loading profile...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>

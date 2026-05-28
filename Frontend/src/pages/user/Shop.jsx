@@ -3,6 +3,7 @@ import DashboardLayout from "../../components/DashboardLayout";
 import ProductCard from "../../components/ProductCard";
 import api from "../../services/api";
 import { useToast } from "../../context/ToastContext";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/user/dashboard", label: "Profile" },
@@ -116,21 +117,25 @@ const Shop = () => {
         </select>
       </div>
 
-      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((p) => (
-          <ProductCard
-            key={p._id}
-            product={p}
-            onAddToCart={addToCart}
-            onAddToWishlist={addToWishlist}
-          />
-        ))}
-      </div>
+      {!loading ? (
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map((p) => (
+            <ProductCard
+              key={p._id}
+              product={p}
+              onAddToCart={addToCart}
+              onAddToWishlist={addToWishlist}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-20">
+          <Loader size="xl" color="blue" />
+          <p className="mt-4 text-sm font-semibold text-slate-500 animate-pulse">Searching products catalog...</p>
+        </div>
+      )}
       {!loading && !products.length && (
         <p className="mt-8 text-center text-slate-500">No products found.</p>
-      )}
-      {loading && (
-        <p className="mt-8 text-center text-slate-500">Searching...</p>
       )}
     </DashboardLayout>
   );

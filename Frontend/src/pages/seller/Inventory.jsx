@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
 import api from "../../services/api";
 import { useToast } from "../../context/ToastContext";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/seller/dashboard", label: "Profile" },
@@ -24,6 +25,7 @@ const emptyForm = {
 const Inventory = () => {
   const { showToast } = useToast();
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(emptyForm);
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -37,7 +39,7 @@ const Inventory = () => {
   const load = () => api.get("/seller/products").then((res) => setProducts(res.data));
 
   useEffect(() => {
-    load();
+    load().finally(() => setLoading(false));
   }, []);
 
   const onFileChange = (e) => {
@@ -151,6 +153,17 @@ const Inventory = () => {
     load();
     showToast("Product removed");
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+          <Loader size="lg" color="blue" />
+          <p className="text-gray-500 animate-pulse font-medium">Loading inventory...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
 import api from "../../services/api";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/admin/dashboard", label: "Overview" },
@@ -10,17 +11,29 @@ const nav = [
 
 const Sellers = () => {
   const [sellers, setSellers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const load = () => api.get("/admin/sellers").then((res) => setSellers(res.data));
 
   useEffect(() => {
-    load();
+    load().finally(() => setLoading(false));
   }, []);
 
   const moderate = async (id, action) => {
     await api.patch(`/admin/sellers/${id}/moderate`, { action });
     load();
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+          <Loader size="lg" color="blue" />
+          <p className="text-gray-500 animate-pulse font-medium">Loading sellers...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/DashboardLayout";
 import api from "../../services/api";
 import { useToast } from "../../context/ToastContext";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/user/dashboard", label: "Profile" },
@@ -16,6 +17,7 @@ const Cart = () => {
   const { showToast } = useToast();
   const [cart, setCart] = useState([]);
   const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const loadCart = async () => {
@@ -24,8 +26,12 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    loadCart();
-    api.get("/user/profile").then((res) => setAddress(res.data.address || ""));
+    Promise.all([
+      api.get("/user/cart").then((res) => setCart(res.data)),
+      api.get("/user/profile").then((res) => setAddress(res.data.address || ""))
+    ])
+      .catch((err) => console.error("Error loading cart profile:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   const removeItem = async (id) => {
@@ -45,6 +51,19 @@ const Cart = () => {
   };
 
   const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center py-24">
+          <Loader size="xl" color="blue" />
+          <p className="mt-4 text-sm font-semibold text-slate-500 animate-pulse">
+            Loading your cart details...
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>

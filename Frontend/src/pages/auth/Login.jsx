@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import Loader from "../../components/Loader";
 
 const roleOptions = [
   { value: "user", label: "Customer", path: "user" },
@@ -11,7 +12,7 @@ const roleOptions = [
 
 const homeByRole = {
   user: "/user/shop",
-  seller: "/seller/dashboard",
+  seller: "/seller/inventory",
   admin: "/admin/dashboard",
   deliveryPartner: "/delivery/dashboard",
 };
@@ -29,18 +30,21 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
     try {
       const apiRole = roleOptions.find((r) => r.value === role)?.path || "user";
       const user = await login(apiRole, { email, password });
       navigate(homeByRole[user.role] || "/");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
+      setLoading(false);
     }
   };
 
@@ -84,9 +88,17 @@ const Login = () => {
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
         <button
           type="submit"
-          className="mt-6 w-full rounded-lg bg-blue-600 py-2.5 text-white hover:bg-blue-500"
+          disabled={loading}
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-2.5 text-white hover:bg-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed transition-all duration-200"
         >
-          Sign In
+          {loading ? (
+            <>
+              <Loader size="sm" color="white" />
+              <span>Signing In...</span>
+            </>
+          ) : (
+            "Sign In"
+          )}
         </button>
         {role !== "admin" && (
           <p className="mt-4 text-center text-sm text-slate-600">

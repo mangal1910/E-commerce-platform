@@ -3,6 +3,7 @@ import DashboardLayout from "../../components/DashboardLayout";
 import ProductCard from "../../components/ProductCard";
 import api from "../../services/api";
 import { useToast } from "../../context/ToastContext";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/user/dashboard", label: "Profile" },
@@ -15,10 +16,18 @@ const nav = [
 const Wishlist = () => {
   const { showToast } = useToast();
   const [wishlist, setWishlist] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    const { data } = await api.get("/user/wishlist");
-    setWishlist(data);
+    setLoading(true);
+    try {
+      const { data } = await api.get("/user/wishlist");
+      setWishlist(data);
+    } catch (err) {
+      console.error("Error loading wishlist:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -39,6 +48,19 @@ const Wishlist = () => {
       showToast(err.response?.data?.message || "Could not add to cart", "error");
     }
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center py-24">
+          <Loader size="xl" color="blue" />
+          <p className="mt-4 text-sm font-semibold text-slate-500 animate-pulse">
+            Loading your wishlist...
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>

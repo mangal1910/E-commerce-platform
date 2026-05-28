@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
 import api from "../../services/api";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/admin/dashboard", label: "Overview" },
@@ -10,6 +11,7 @@ const nav = [
 
 const DeliveryPartners = () => {
   const [partners, setPartners] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -21,7 +23,7 @@ const DeliveryPartners = () => {
     api.get("/admin/delivery-partners").then((res) => setPartners(res.data));
 
   useEffect(() => {
-    load();
+    load().finally(() => setLoading(false));
   }, []);
 
   const create = async (e) => {
@@ -31,6 +33,17 @@ const DeliveryPartners = () => {
     setForm({ name: "", email: "", password: "", mobileNo: "" });
     load();
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+          <Loader size="lg" color="blue" />
+          <p className="text-gray-500 animate-pulse font-medium">Loading delivery partners...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>

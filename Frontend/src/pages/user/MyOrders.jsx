@@ -4,6 +4,7 @@ import DashboardLayout from "../../components/DashboardLayout";
 import OrderStatusTimeline from "../../components/OrderStatusTimeline";
 import api from "../../services/api";
 import { useToast } from "../../context/ToastContext";
+import Loader from "../../components/Loader";
 
 const nav = [
   { to: "/user/dashboard", label: "Profile" },
@@ -32,9 +33,15 @@ const MyOrders = () => {
   const [selectedReason, setSelectedReason] = useState("");
   const [customReason, setCustomReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const load = () =>
-    api.get("/user/orders", { params: { sort } }).then((res) => setOrders(res.data));
+  const load = () => {
+    setLoading(true);
+    return api.get("/user/orders", { params: { sort } })
+      .then((res) => setOrders(res.data))
+      .catch((err) => console.error("Error fetching orders:", err))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     load();
@@ -79,6 +86,19 @@ const MyOrders = () => {
       setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout navItems={nav}>
+        <div className="flex flex-col items-center justify-center py-24">
+          <Loader size="xl" color="blue" />
+          <p className="mt-4 text-sm font-semibold text-slate-500 animate-pulse">
+            Loading your orders...
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout navItems={nav}>
@@ -134,6 +154,17 @@ const MyOrders = () => {
                     Delivery: {order.deliveryPartner.name} ·{" "}
                     {order.deliveryPartner.mobileNo}
                   </p>
+                )}
+                {order.orderStatus !== "Delivered" && order.orderStatus !== "Cancelled" && order.deliveryOTP && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-800">
+                    <span className="font-semibold">🔑 Delivery OTP:</span>
+                    <span className="font-mono text-base font-extrabold tracking-widest bg-white border border-amber-300 px-2 py-0.5 rounded shadow-sm">
+                      {order.deliveryOTP}
+                    </span>
+                    <span className="text-xs text-amber-600 font-medium ml-1">
+                      (Provide this OTP to the delivery agent to confirm delivery)
+                    </span>
+                  </div>
                 )}
 
                 <ul className="mt-3 space-y-2">

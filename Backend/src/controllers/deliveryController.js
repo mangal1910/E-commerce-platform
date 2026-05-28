@@ -76,20 +76,28 @@ const updateDeliveryStatus = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Delivery is already closed" });
   }
 
-  pushShippingUpdate(
-    order,
-    status,
-    note || `Status updated to ${status}`,
-    "deliveryPartner"
-  );
 
   if (status === "Delivered to Customer") {
+    const { otp } = req.body;
+    if (!otp) {
+      return res.status(400).json({ message: "Delivery OTP is required to complete delivery" });
+    }
+    if (!order.deliveryOTP || order.deliveryOTP.toString().trim() !== otp.toString().trim()) {
+      return res.status(400).json({ message: "Invalid Delivery OTP" });
+    }
     order.orderStatus = "Delivered";
   } else if (status === "In Transit") {
     order.orderStatus = "Shipped";
   } else if (status === "Picked Up") {
     order.orderStatus = "Processing";
   }
+
+  pushShippingUpdate(
+    order,
+    status,
+    note || `Status updated to ${status}`,
+    "deliveryPartner"
+  );
 
   await order.save();
   res.json(order);
