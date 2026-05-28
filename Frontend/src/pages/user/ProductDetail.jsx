@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import DashboardLayout from "../../components/DashboardLayout";
 import StarRating from "../../components/StarRating";
+import Loader from "../../components/Loader";
 import api from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 
